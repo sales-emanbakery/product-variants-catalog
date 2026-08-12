@@ -16,6 +16,9 @@
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
+<!-- Supabase client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +162,11 @@ const PRODUCTS = [
 const STORAGE_KEY = "emanBakeryProductData";
 const WHATSAPP_NUMBER = "966541885869"; // +966541885869 without the plus
 
+// Supabase project: "Eman Bakery"
+const SUPABASE_URL = "https://tuychuzhvxjhnbtbqkds.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mjkGflvuKfm_Aee0wKX0Yg_fY8pDxvt";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 /* ============================================================
    STATE
    ============================================================ */
@@ -188,6 +196,52 @@ function persistSavedData(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
     console.error("Failed to save data", e);
+  }
+}
+
+async function syncToCloud(action, product, sizes, packs) {
+  try {
+    if (action === "delete") {
+      const { error } = await supabaseClient
+        .from("product_submissions")
+        .delete()
+        .eq("product", product);
+      if (error) throw error;
+    } else {
+      const { error } = await supabaseClient
+        .from("product_submissions")
+        .upsert(
+          {
+            product,
+            sizes: sizes || [],
+            packs: packs || {},
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: "product" }
+        );
+      if (error) throw error;
+    }
+  } catch (err) {
+    console.error("Cloud sync failed", err);
+  }
+}
+
+async function refreshFromCloud() {
+  try {
+    const { data, error } = await supabaseClient
+      .from("product_submissions")
+      .select("product, sizes, packs");
+    if (error) throw error;
+
+    const shaped = {};
+    (data || []).forEach(row => {
+      shaped[row.product] = { sizes: row.sizes || [], packs: row.packs || {} };
+    });
+    persistSavedData(shaped);
+    return true;
+  } catch (err) {
+    console.error("Cloud refresh failed, using local cache", err);
+    return false;
   }
 }
 
@@ -473,6 +527,7 @@ function finishProduct() {
     packs: packsOut
   };
   persistSavedData(data);
+  syncToCloud("save", state.currentProduct, state.selectedSizes, packsOut);
 
   state.currentProduct = null;
   state.selectedSizes = [];
@@ -578,6 +633,7 @@ function deleteProduct(name) {
   const data = loadSavedData();
   delete data[name];
   persistSavedData(data);
+  syncToCloud("delete", name, [], {});
   transitionTo(renderResults);
 }
 
@@ -612,7 +668,13 @@ function shareWhatsApp() {
 /* ============================================================
    INIT
    ============================================================ */
-renderHome();
+renderHome(); // instant paint from whatever's cached locally
+
+refreshFromCloud().then(ok => {
+  // pull in any changes saved from other devices, then repaint if still on Home/Results
+  if (ok && state.view === "home") renderHome();
+  if (ok && state.view === "results") renderResults();
+});
 </script>
 
 </body>
