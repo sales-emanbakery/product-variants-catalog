@@ -1,632 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eman Bakery - Product Setup</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'eman-green': '#0e673a',
-                        'eman-gold': '#d4af37',
-                        'eman-red': '#c62828',
-                        'eman-dark': '#111111'
-                    },
-                    boxShadow: {
-                        'top': '0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06)',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body, html {
-            height: 100%;
-            height: 100dvh; /* Fixes Safari bottom bar issue */
-            margin: 0;
-            overflow: hidden; /* Prevent body scrolling */
-            width: 100%;
-            background-color: #f3f4f6;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
-        }
-        
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Eman Bakery - Taste of Tradition</title>
 
-        #app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
+<!-- PWA / iOS app-like meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eman Bakery">
+<meta name="theme-color" content="#005B3A">
+<meta name="description" content="Eman Bakery product size and pack configuration tool">
 
-        #scrollable-content {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden; /* Strictly prevent horizontal scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            padding-bottom: 24px;
-        }
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-        /* Native-feeling fade transition to prevent horizontal scroll bugs */
-        .animate-fade-in {
-            animation: fadeIn 0.25s ease-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Number grid styling */
-        .num-btn {
-            transition: all 0.2s;
-            touch-action: manipulation; /* Improves touch response */
-            -webkit-tap-highlight-color: transparent;
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            green: '#005B3A',
+            greenDark: '#003D27',
+            greenLight: '#E6F1EC',
+            gold: '#D4AF37',
+            goldLight: '#FBF3DA',
+            red: '#C1121F',
+            redLight: '#FBEAEA',
+          }
+        },
+        fontFamily: {
+          display: ['Poppins', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
         }
-        .num-btn.selected {
-            background-color: #0e673a;
-            color: white;
-            border-color: #0e673a;
-            transform: scale(1.05);
-            box-shadow: 0 4px 6px -1px rgba(14, 103, 58, 0.4);
-        }
-        
-        /* CSS for safe areas on mobile devices (e.g. iPhone notch) */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .pb-safe {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-        }
-    </style>
+      }
+    }
+  }
+</script>
+
+<style>
+  html, body {
+    height: 100%;
+    overscroll-behavior: none;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+  }
+
+  #app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    max-width: 560px;
+    margin: 0 auto;
+    background-color: #f8fafc;
+    box-shadow: 0 0 40px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  header.app-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+  }
+
+  footer.app-footer {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .font-display { font-family: 'Poppins', sans-serif; }
+
+  #view-wrapper {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #view-wrapper.fading {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .toggle-btn {
+    transition: all 0.12s ease;
+  }
+  .toggle-btn:active {
+    transform: scale(0.92);
+  }
+
+  .product-card {
+    transition: all 0.15s ease;
+  }
+  .product-card:active {
+    transform: scale(0.98);
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop-in { animation: pop 0.25s ease; }
+</style>
 </head>
-<body class="text-gray-800">
+<body class="bg-slate-50">
 
-<div id="app-container">
-    <!-- Header: Fixed at the top -->
-    <header class="bg-black text-white p-4 shadow-md z-10 flex-shrink-0 flex items-center justify-center relative">
-        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 hidden" id="header-back-btn">
-             <button onclick="goBack()" class="text-eman-gold p-2">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                 </svg>
-             </button>
-        </div>
-        <img src="logo.jpg" alt="Eman Bakery" class="h-16 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/200x80/000000/d4af37?text=EMAN+BAKERY';">
-    </header>
+<div id="app">
 
-    <nav class="bg-white flex border-b border-gray-200 z-10 flex-shrink-0">
-        <button id="tab-form" onclick="switchTab('form')" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-eman-green text-eman-green transition-colors">
-            Capture Form
-        </button>
-        <button id="tab-results" onclick="switchTab('results')" class="flex-1 py-3 text-center text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
-            Results Dashboard
-        </button>
-    </nav>
-
-    <!-- Scrollable Content Area -->
-    <main id="scrollable-content" class="relative p-4">
-        
-        <!-- ==================== FORM VIEW ==================== -->
-        <div id="view-form" class="w-full max-w-lg mx-auto">
-            
-            <!-- STEP 1: Select Product -->
-            <div id="step-1" class="w-full flex flex-col animate-fade-in">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
-                    <h2 class="text-xl font-bold text-eman-green mb-4 flex items-center">
-                        <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">1</span>
-                        Select Product
-                    </h2>
-                    
-                    <div class="mb-4">
-                        <label for="product-select" class="block text-sm font-medium text-gray-700 mb-2">Choose from list:</label>
-                        <div class="relative">
-                            <!-- Explicitly visible select dropdown -->
-                            <select id="product-select" class="block w-full pl-4 pr-10 py-4 text-base border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-eman-green focus:border-eman-green sm:text-sm rounded-lg appearance-none bg-white font-medium text-gray-800">
-                                <option value="" disabled selected>-- Tap to select a product --</option>
-                                <!-- Options will be injected by JS -->
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button onclick="nextStep(2)" id="btn-next-1" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
-                        Next Step
-                    </button>
-                </div>
-            </div>
-
-            <!-- STEP 2: Available Sizes -->
-            <div id="step-2" class="w-full flex flex-col hidden animate-fade-in">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
-                    <h2 class="text-xl font-bold text-eman-green mb-1 flex items-center">
-                        <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">2</span>
-                        Available Sizes
-                    </h2>
-                    <p class="text-sm text-gray-500 mb-4 font-bold" id="display-selected-product">Product Name</p>
-                    
-                    <p class="text-sm font-medium text-gray-700 mb-3">Select all that apply:</p>
-                    <div class="grid grid-cols-2 gap-3" id="size-options">
-                        <!-- Checkboxes injected by JS -->
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button onclick="nextStep(3)" id="btn-next-2" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 disabled:opacity-50 transition-colors" disabled>
-                        Next: Set Pack Quantities
-                    </button>
-                </div>
-            </div>
-
-            <!-- STEP 3: Pack Quantities -->
-            <div id="step-3" class="w-full flex flex-col hidden animate-fade-in">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-xl font-bold text-eman-green flex items-center">
-                            <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">3</span>
-                            Pack Quantities
-                        </h2>
-                        <span id="current-size-badge" class="bg-gray-200 text-gray-800 text-xs font-bold px-3 py-1 rounded-full uppercase"></span>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-6" id="size-step-instruction">Select all package piece counts available for this size.</p>
-
-                    <div id="number-grid-container" class="mb-4">
-                        <!-- Grid injected by JS -->
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button onclick="handleSizeNext()" id="btn-next-size" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 transition-colors">
-                        Next Size
-                    </button>
-                    <button onclick="submitForm()" id="btn-submit" class="w-full bg-eman-red text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-red-800 transition-colors hidden">
-                        Finish & Save Record
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="view-results" class="hidden w-full max-w-4xl mx-auto">
-                    <h2 class="text-lg font-bold text-eman-dark">Saved Records</h2>
-                    <span id="record-count" class="bg-eman-green text-white text-xs px-2 py-1 rounded-full">0</span>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Configuration</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-tbody" class="bg-white divide-y divide-gray-200">
-                            <!-- Rows injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
-                <div id="empty-state" class="p-8 text-center text-gray-500">
-                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <p>No records saved yet.</p>
-                </div>
-            </div>
-
-            <div class="mt-6">
-                <button onclick="shareToWhatsApp()" class="w-full flex items-center justify-center bg-[#25D366] text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
-                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 1.802 6.309L0 24l5.856-1.536A12 12 0 0 0 11.944 24a12 12 0 0 0 12-12 12 12 0 0 0-12-12zm.056 21.954a9.964 9.964 0 0 1-5.074-1.385l-.364-.216-3.768.99.998-3.674-.237-.377A9.97 9.97 0 0 1 2.046 12 9.954 9.954 0 0 1 12 2.046a10.046 10.046 0 0 1 10 10A10.046 10.046 0 0 1 12 21.954z"/>
-                        <path d="M16.51 14.156c-.237-.119-1.402-.693-1.62-.772-.218-.08-.377-.119-.536.119-.159.237-.614.772-.752.93s-.277.178-.515.06c-.237-.119-1.002-.37-1.906-1.176-.704-.627-1.179-1.402-1.317-1.64s-.015-.366.104-.485c.108-.108.237-.277.356-.415.119-.138.159-.237.237-.395.08-.158.04-.297-.02-.415-.06-.119-.536-1.293-.733-1.768-.194-.464-.391-.401-.536-.408-.138-.007-.297-.007-.455-.007a.87.87 0 0 0-.634.297c-.218.237-.832.812-.832 1.98s.852 2.298.971 2.456c.119.159 1.674 2.556 4.052 3.585.566.244 1.007.391 1.352.5.568.18 1.085.154 1.493.093.456-.067 1.402-.574 1.6-1.129.198-.556.198-1.031.138-1.129-.06-.099-.218-.158-.456-.277z"/>
-                    </svg>
-                    Send Report via WhatsApp
-                </button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer: Fixed at the bottom -->
-    <div id="sticky-controls" class="bg-white border-t border-gray-200 p-3 flex justify-between gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 pb-safe flex-shrink-0">
-        <button type="button" onclick="cancelProcess()" class="flex-1 py-3 px-2 bg-gray-200 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-300 transition-colors">
-            Cancel
-        </button>
-        <button type="button" onclick="saveDraft()" class="flex-1 py-3 px-2 bg-eman-gold text-white font-semibold rounded-lg text-sm hover:bg-yellow-600 transition-colors">
-            Save Draft
-        </button>
-        <button type="button" onclick="goBack()" class="flex-1 py-3 px-2 bg-gray-800 text-white font-semibold rounded-lg text-sm hover:bg-black transition-colors flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back
-        </button>
+  <!-- STICKY HEADER -->
+  <header class="app-header sticky top-0 z-20 bg-white border-b border-slate-100 shadow-sm">
+    <div class="flex items-center gap-3 px-4 pb-3">
+      <div class="w-11 h-11 shrink-0 rounded-full flex items-center justify-center font-display font-bold text-sm shadow-inner"
+           style="background: linear-gradient(135deg, #005B3A, #003D27); color: #D4AF37;">
+        EB
+      </div>
+      <div class="leading-tight">
+        <h1 class="font-display font-bold text-[17px]" style="color:#005B3A;">Eman Bakery</h1>
+        <p class="text-[10px] font-semibold tracking-[0.14em]" style="color:#D4AF37;">TASTE OF TRADITION</p>
+      </div>
     </div>
+  </header>
+
+  <!-- SCROLLABLE MIDDLE -->
+  <main id="main-scroll" class="no-scrollbar flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+    <div id="view-wrapper"></div>
+  </main>
+
+  <!-- STICKY FOOTER -->
+  <footer id="app-footer" class="app-footer sticky bottom-0 z-20 bg-white border-t border-slate-100 px-4 pt-3 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+    <div id="footer-content" class="flex gap-3"></div>
+  </footer>
+
 </div>
 
-    <script>
-        // --- Data Definitions ---
-        const products = [
-            "SHAMI WHITE BREAD",
-            "SHAMI WHOLE WHEAT BREAD",
-            "LEBANESE WHITE BREAD",
-            "LEBANESE WHOLE WHEAT BREAD",
-            "TORTILLA WHITE",
-            "TORTILLA WHOLE WHEAT",
-            "SAMOULI WHITE",
-            "SAMOULI WHOLE WHEAT",
-            "BURGER BREAD",
-            "FALAFEL SANDWICH WHITE",
-            "FALAFEL SANDWICH WHOLE WHEAT"
-        ];
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const PRODUCTS = [
+  "SHAMI WHITE BREAD",
+  "SHAMI WHOLE WHEAT BREAD",
+  "LEBANESE WHITE BREAD",
+  "LEBANESE WHOLE WHEAT BREAD",
+  "TORTILLA WHITE",
+  "TORTILLA WHOLE WHEAT",
+  "SAMOULI WHITE",
+  "SAMOULI WHOLE WHEAT",
+  "BURGER BREAD",
+  "FALAFEL SANDWICH WHITE",
+  "FALAFEL SANDWICH WHOLE WHEAT"
+];
 
-        const sizes = [
-            { id: 'N', label: 'Normal' },
-            { id: 'M', label: 'Medium' },
-            { id: 'L', label: 'Large' },
-            { id: 'XL', label: 'X-Large' },
-            { id: 'XXL', label: 'XX-Large' },
-            { id: 'XXXL', label: 'XXX-Large' }
-        ];
+const STORAGE_KEY = "emanBakeryProductData";
+const WHATSAPP_NUMBER = "966541885869"; // +966541885869 without the plus
 
-        // --- State Management ---
-        let currentStep = 1;
-        let formData = {
-            product: '',
-            selectedSizes: [], // e.g. ['M', 'L']
-            packQuantities: {} // e.g. { 'M': [2, 4], 'L': [5] }
-        };
-        let currentSizeProcessingIndex = 0;
-        let savedRecords = [];
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  view: "home",              // home | sizes | packs | results
+  currentProduct: null,
+  selectedSizes: [],         // array of ints, sorted
+  packData: {},              // { size: [int, int, ...] }
+  currentSizeIdx: 0
+};
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM loaded, initializing...");
-            initProductSelect();
-            initSizeCheckboxes();
-            
-            // Load Draft if exists
-            const draft = localStorage.getItem('eman_form_draft');
-            if(draft) {
-                if(confirm("You have a saved draft. Would you like to resume?")) {
-                    formData = JSON.parse(draft);
-                    resumeDraft();
-                } else {
-                    localStorage.removeItem('eman_form_draft');
-                }
-            }
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+function loadSavedData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    console.error("Failed to read saved data", e);
+    return {};
+  }
+}
 
-            // Load saved records
-            const records = localStorage.getItem('eman_records');
-            if(records) {
-                savedRecords = JSON.parse(records);
-                updateResultsTable();
-            }
-        });
+function persistSavedData(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error("Failed to save data", e);
+  }
+}
 
-        function initProductSelect() {
-            const selectEl = document.getElementById('product-select');
-            
-            // Clear existing options except placeholder
-            selectEl.innerHTML = '<option value="" disabled selected>-- Tap to select a product --</option>';
-            
-            // Append products
-            products.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.textContent = p;
-                selectEl.appendChild(opt);
-            });
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function getIcon(name) {
+  if (name.includes("SHAMI")) return "🍞";
+  if (name.includes("LEBANESE")) return "🫓";
+  if (name.includes("TORTILLA")) return "🌯";
+  if (name.includes("SAMOULI")) return "🥖";
+  if (name.includes("BURGER")) return "🍔";
+  if (name.includes("FALAFEL")) return "🧆";
+  return "🍞";
+}
 
-            // Add change listener to enable Next button
-            selectEl.addEventListener('change', (e) => {
-                formData.product = e.target.value;
-                document.getElementById('btn-next-1').disabled = false;
-                document.getElementById('display-selected-product').textContent = formData.product;
-            });
-            
-            console.log("Dropdown initialized with " + products.length + " products.");
-        }
+function getType(name) {
+  return name.includes("WHOLE WHEAT") ? "Whole Wheat" : "White";
+}
 
-        function initSizeCheckboxes() {
-            const container = document.getElementById('size-options');
-            container.innerHTML = '';
-            
-            sizes.forEach(size => {
-                const label = document.createElement('label');
-                label.className = "flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors";
-                label.innerHTML = `
-                    <input type="checkbox" value="${size.id}" class="w-5 h-5 text-eman-green border-gray-300 rounded focus:ring-eman-green size-checkbox">
-                    <span class="ml-3 font-medium text-gray-700">${size.label} (${size.id})</span>
-                `;
-                container.appendChild(label);
-            });
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[s]));
+}
 
-            // Listen for changes to enable Next button
-            const checkboxes = document.querySelectorAll('.size-checkbox');
-            checkboxes.forEach(cb => {
-                cb.addEventListener('change', () => {
-                    const checked = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
-                    formData.selectedSizes = checked;
-                    document.getElementById('btn-next-2').disabled = checked.length === 0;
-                });
-            });
-        }
+function transitionTo(renderFn) {
+  const wrapper = document.getElementById("view-wrapper");
+  wrapper.classList.add("fading");
+  setTimeout(() => {
+    renderFn();
+    document.getElementById("main-scroll").scrollTop = 0;
+    requestAnimationFrame(() => wrapper.classList.remove("fading"));
+  }, 160);
+}
 
-        function generateNumberGrid() {
-            const container = document.getElementById('number-grid-container');
-            container.innerHTML = '';
-            
-            const grid = document.createElement('div');
-            grid.className = "grid grid-cols-5 gap-2 sm:gap-3";
-            
-            const currentSize = formData.selectedSizes[currentSizeProcessingIndex];
-            const selectedNumsForThisSize = formData.packQuantities[currentSize] || [];
+/* ============================================================
+   VIEW 1: HOME
+   ============================================================ */
+function renderHome() {
+  const saved = loadSavedData();
+  const wrapper = document.getElementById("view-wrapper");
 
-            for (let i = 1; i <= 30; i++) {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                const isSelected = selectedNumsForThisSize.includes(i);
-                
-                btn.className = `num-btn w-full aspect-square rounded-lg flex items-center justify-center text-lg font-bold border-2 ${isSelected ? 'selected' : 'border-gray-200 bg-white text-gray-700 hover:border-eman-green'}`;
-                btn.textContent = i;
-                
-                btn.onclick = () => toggleNumber(i, currentSize, btn);
-                grid.appendChild(btn);
-            }
-            container.appendChild(grid);
-        }
+  const cards = PRODUCTS.map(name => {
+    const isDone = !!saved[name];
+    return `
+      <button onclick="openProduct(${JSON.stringify(name).replace(/"/g, '&quot;')})"
+        class="product-card w-full text-left bg-white rounded-2xl p-4 mb-3 flex items-center gap-3 border ${isDone ? 'border-brand-green/30 bg-brand-greenLight' : 'border-slate-100'} shadow-sm">
+        <div class="w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl bg-slate-50">
+          ${getIcon(name)}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-slate-800 text-[14px] leading-snug">${escapeHtml(name)}</p>
+          <span class="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style="background:#FBF3DA; color:#8a6d1f;">
+            ${getType(name)}
+          </span>
+        </div>
+        ${isDone ? `
+          <div class="w-7 h-7 shrink-0 rounded-full flex items-center justify-center pop-in" style="background:#005B3A;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.4 7.4a1 1 0 01-1.4 0L3.3 9.5a1 1 0 111.4-1.4l3.6 3.6 6.7-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+        ` : `
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0 text-slate-300" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/>
+          </svg>
+        `}
+      </button>
+    `;
+  }).join("");
 
-        function toggleNumber(num, size, btnEl) {
-            if (!formData.packQuantities[size]) {
-                formData.packQuantities[size] = [];
-            }
-            
-            const index = formData.packQuantities[size].indexOf(num);
-            if (index > -1) {
-                // Remove
-                formData.packQuantities[size].splice(index, 1);
-                btnEl.classList.remove('selected');
-                btnEl.classList.add('border-gray-200', 'bg-white', 'text-gray-700');
-            } else {
-                // Add
-                formData.packQuantities[size].push(num);
-                formData.packQuantities[size].sort((a,b) => a-b);
-                btnEl.classList.add('selected');
-                btnEl.classList.remove('border-gray-200', 'bg-white', 'text-gray-700');
-            }
-        }
+  wrapper.innerHTML = `
+    <div class="mb-4">
+      <h2 class="font-display font-bold text-lg text-slate-800">Products</h2>
+      <p class="text-[13px] text-slate-500">Tap a product to set its sizes and pack quantities.</p>
+    </div>
+    ${cards}
+    <div class="h-2"></div>
+  `;
 
-        function nextStep(step) {
-            // Hide current
-            document.getElementById(`step-${currentStep}`).classList.add('hidden');
-            
-            currentStep = step;
-            
-            const nextEl = document.getElementById(`step-${currentStep}`);
-            nextEl.classList.remove('hidden');
-            
-            // Setup specific steps
-            if (step === 3) {
-                currentSizeProcessingIndex = 0;
-                setupSizeProcessingView();
-            }
-        }
+  document.getElementById("footer-content").innerHTML = `
+    <button onclick="goToResults()"
+      class="w-full py-3.5 rounded-xl font-display font-semibold text-[14px] text-white shadow-sm"
+      style="background:#005B3A;">
+      View Results
+    </button>
+  `;
+}
 
-        function setupSizeProcessingView() {
-            const currentSizeId = formData.selectedSizes[currentSizeProcessingIndex];
-            const sizeObj = sizes.find(s => s.id === currentSizeId);
-            
-            document.getElementById('current-size-badge').textContent = `${sizeObj.label} (${currentSizeId})`;
-            
-            // Determine button state
-            const btnNextSize = document.getElementById('btn-next-size');
-            const btnSubmit = document.getElementById('btn-submit');
-            
-            if (currentSizeProcessingIndex < formData.selectedSizes.length - 1) {
-                // More sizes to process
-                btnNextSize.classList.remove('hidden');
-                btnSubmit.classList.add('hidden');
-            } else {
-                // Last size
-                btnNextSize.classList.add('hidden');
-                btnSubmit.classList.remove('hidden');
-            }
-            
-            generateNumberGrid();
-        }
+function openProduct(name) {
+  state.currentProduct = name;
+  const saved = loadSavedData()[name];
+  if (saved) {
+    state.selectedSizes = [...saved.sizes];
+    state.packData = JSON.parse(JSON.stringify(saved.packs));
+  } else {
+    state.selectedSizes = [];
+    state.packData = {};
+  }
+  state.currentSizeIdx = 0;
+  state.view = "sizes";
+  transitionTo(renderSizes);
+}
 
-        function handleSizeNext() {
-            currentSizeProcessingIndex++;
-            setupSizeProcessingView();
-        }
+/* ============================================================
+   VIEW 2: SIZE SELECTION
+   ============================================================ */
+function renderSizes() {
+  const wrapper = document.getElementById("view-wrapper");
 
-        function goBack() {
-            if (currentStep === 1) return; // Cannot go back from 1
-            
-            if (currentStep === 3 && currentSizeProcessingIndex > 0) {
-                // Go back a size within step 3
-                currentSizeProcessingIndex--;
-                setupSizeProcessingView();
-                return;
-            }
+  const buttons = Array.from({ length: 45 }, (_, i) => i + 1).map(n => {
+    const active = state.selectedSizes.includes(n);
+    return `
+      <button onclick="toggleSize(${n})"
+        class="toggle-btn aspect-square rounded-lg border-2 flex items-center justify-center font-semibold text-[13px] ${
+          active
+            ? 'text-white border-transparent shadow-sm'
+            : 'bg-white border-slate-200 text-slate-500'
+        }"
+        style="${active ? 'background:#005B3A;' : ''}">
+        ${n}
+      </button>
+    `;
+  }).join("");
 
-            // Normal step back
-            document.getElementById(`step-${currentStep}`).classList.add('hidden');
-            currentStep--;
-            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
-        }
+  wrapper.innerHTML = `
+    <div class="mb-4">
+      <p class="text-[11px] font-semibold tracking-wide uppercase" style="color:#D4AF37;">Step 1 of 2</p>
+      <h2 class="font-display font-bold text-lg text-slate-800 leading-snug">
+        Select Sizes (cm) for<br>${escapeHtml(state.currentProduct)}
+      </h2>
+      <p class="text-[13px] text-slate-500 mt-1">Tap all sizes this product comes in.</p>
+    </div>
+    <div class="grid grid-cols-5 gap-2">
+      ${buttons}
+    </div>
+    <div class="h-2"></div>
+  `;
 
-        function cancelProcess() {
-            if(confirm("Are you sure you want to cancel and start over?")) {
-                localStorage.removeItem('eman_form_draft');
-                resetForm();
-            }
-        }
+  renderSizesFooter();
+}
 
-        function resetForm() {
-            formData = { product: '', selectedSizes: [], packQuantities: {} };
-            currentStep = 1;
-            currentSizeProcessingIndex = 0;
-            
-            // Reset UI
-            const selectEl = document.getElementById('product-select');
-            selectEl.value = '';
-            document.getElementById('btn-next-1').disabled = true;
-            document.getElementById('display-selected-product').textContent = 'Product Name';
-            
-            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
-            document.getElementById('btn-next-2').disabled = true;
-            
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-3').classList.add('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
-            
-            switchTab('form');
-        }
+function renderSizesFooter() {
+  const hasSelection = state.selectedSizes.length > 0;
+  document.getElementById("footer-content").innerHTML = `
+    <button onclick="cancelFlow()"
+      class="flex-1 py-3.5 rounded-xl font-display font-semibold text-[14px] border-2"
+      style="border-color:#C1121F; color:#C1121F;">
+      Cancel
+    </button>
+    <button onclick="goToPacksFromSizes()" ${hasSelection ? "" : "disabled"}
+      class="flex-1 py-3.5 rounded-xl font-display font-semibold text-[14px] text-white ${hasSelection ? "" : "opacity-40"}"
+      style="background:#005B3A;">
+      Next
+    </button>
+  `;
+}
 
-        function saveDraft() {
-            localStorage.setItem('eman_form_draft', JSON.stringify(formData));
-            alert("Draft saved successfully. You can resume later.");
-        }
+function toggleSize(n) {
+  const idx = state.selectedSizes.indexOf(n);
+  if (idx > -1) {
+    state.selectedSizes.splice(idx, 1);
+  } else {
+    state.selectedSizes.push(n);
+  }
+  state.selectedSizes.sort((a, b) => a - b);
+  renderSizes();
+}
 
-        function resumeDraft() {
-            // Restore Product
-            if(formData.product) {
-                document.getElementById('product-select').value = formData.product;
-                document.getElementById('btn-next-1').disabled = false;
-                document.getElementById('display-selected-product').textContent = formData.product;
-            }
-            
-            // Restore Sizes
-            if(formData.selectedSizes && formData.selectedSizes.length > 0) {
-                const checkboxes = document.querySelectorAll('.size-checkbox');
-                checkboxes.forEach(cb => {
-                    cb.checked = formData.selectedSizes.includes(cb.value);
-                });
-                document.getElementById('btn-next-2').disabled = false;
-            }
-        }
+function goToPacksFromSizes() {
+  if (state.selectedSizes.length === 0) return;
+  state.currentSizeIdx = 0;
+  state.view = "packs";
+  transitionTo(renderPacks);
+}
 
-        function submitForm() {
-            // Validation: Ensure current size has at least one quantity if possible, 
-            // though not strictly required, good UX to warn.
-            
-            const record = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
-                ...formData
-            };
-            
-            savedRecords.push(record);
-            localStorage.setItem('eman_records', JSON.stringify(savedRecords));
-            localStorage.removeItem('eman_form_draft'); // Clear draft on submit
-            
-            updateResultsTable();
-            resetForm();
-            switchTab('results');
-        }
+/* ============================================================
+   VIEW 3: PACK QUANTITY SELECTION (per size)
+   ============================================================ */
+function renderPacks() {
+  const wrapper = document.getElementById("view-wrapper");
+  const size = state.selectedSizes[state.currentSizeIdx];
+  if (!state.packData[size]) state.packData[size] = [];
 
-        function updateResultsTable() {
-            const tbody = document.getElementById('results-tbody');
-            const emptyState = document.getElementById('empty-state');
-            document.getElementById('record-count').textContent = savedRecords.length;
-            
-            tbody.innerHTML = '';
-            
-            if (savedRecords.length === 0) {
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            
-            savedRecords.slice().reverse().forEach(record => {
-                const tr = document.createElement('tr');
-                
-                // Format configuration string
-                let configHtml = '';
-                for (const [size, quantities] of Object.entries(record.packQuantities)) {
-                    if (quantities && quantities.length > 0) {
-                        configHtml += `<div class="mb-1"><span class="font-bold text-gray-700">${size}:</span> [${quantities.join(', ')}]</div>`;
-                    }
-                }
-                
-                tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-normal text-sm font-medium text-gray-900">${record.product}</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${configHtml || 'No packs set'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.date.split(' ')[0]}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+  const total = state.selectedSizes.length;
+  const step = state.currentSizeIdx + 1;
 
-        function switchTab(tab) {
-            const viewForm = document.getElementById('view-form');
-            const viewResults = document.getElementById('view-results');
-            const tabForm = document.getElementById('tab-form');
-            const tabResults = document.getElementById('tab-results');
-            const stickyControls = document.getElementById('sticky-controls');
-            
-            if (tab === 'form') {
-                viewForm.classList.remove('hidden');
-                viewResults.classList.add('hidden');
-                tabForm.classList.add('border-eman-green', 'text-eman-green');
-                tabForm.classList.remove('border-transparent', 'text-gray-500');
-                tabResults.classList.remove('border-eman-green', 'text-eman-green');
-                tabResults.classList.add('border-transparent', 'text-gray-500');
-                stickyControls.classList.remove('hidden');
-            } else {
-                viewForm.classList.add('hidden');
-                viewResults.classList.remove('hidden');
-                tabResults.classList.add('border-eman-green', 'text-eman-green');
-                tabResults.classList.remove('border-transparent', 'text-gray-500');
-                tabForm.classList.remove('border-eman-green', 'text-eman-green');
-                tabForm.classList.add('border-transparent', 'text-gray-500');
-                stickyControls.classList.add('hidden');
-            }
-        }
+  const buttons = Array.from({ length: 30 }, (_, i) => i + 1).map(n => {
+    const active = state.packData[size].includes(n);
+    return `
+      <button onclick="togglePack(${n})"
+        class="toggle-btn aspect-square rounded-lg border-2 flex items-center justify-center font-semibold text-[13px] ${
+          active
+            ? 'text-white border-transparent shadow-sm'
+            : 'bg-white border-slate-200 text-slate-500'
+        }"
+        style="${active ? 'background:#D4AF37;' : ''}">
+        ${n}
+      </button>
+    `;
+  }).join("");
 
-        function shareToWhatsApp() {
-            if (savedRecords.length === 0) {
-                alert("No records to share yet.");
-                return;
-            }
-            
-            let message = "*Eman Bakery - Packaging Setup Report*\n\n";
-            
-            savedRecords.forEach((record, index) => {
-                message += `*${index + 1}. ${record.product}*\n`;
-                for (const [size, quantities] of Object.entries(record.packQuantities)) {
-                    if (quantities && quantities.length > 0) {
-                        message += `- Size ${size}: ${quantities.join(', ')} pcs/pack\n`;
-                    }
-                }
-                message += "\n";
-            });
-            
-            const phone = "966541885869";
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-            
-            window.open(whatsappUrl, '_blank');
-        }
-    </script>
+  wrapper.innerHTML = `
+    <div class="mb-4">
+      <p class="text-[11px] font-semibold tracking-wide uppercase" style="color:#D4AF37;">Step 2 of 2 &middot; Step ${step} of ${total}</p>
+      <h2 class="font-display font-bold text-lg text-slate-800 leading-snug">
+        Pack Quantities for<br>${escapeHtml(state.currentProduct)} &mdash; Size: ${size}cm
+      </h2>
+      <p class="text-[13px] text-slate-500 mt-1">Tap all pack sizes (pieces) available for ${size}cm.</p>
+    </div>
+    <div class="grid grid-cols-5 gap-2">
+      ${buttons}
+    </div>
+    <div class="h-2"></div>
+  `;
+
+  renderPacksFooter();
+}
+
+function renderPacksFooter() {
+  const isLast = state.currentSizeIdx === state.selectedSizes.length - 1;
+  document.getElementById("footer-content").innerHTML = `
+    <button onclick="goBackPacks()"
+      class="flex-1 py-3 rounded-xl font-display font-semibold text-[13px] border-2 border-slate-200 text-slate-500">
+      Back
+    </button>
+    <button onclick="cancelFlow()"
+      class="flex-1 py-3 rounded-xl font-display font-semibold text-[13px] border-2"
+      style="border-color:#C1121F; color:#C1121F;">
+      Cancel
+    </button>
+    <button onclick="goNextPacks()"
+      class="flex-[1.3] py-3 rounded-xl font-display font-semibold text-[13px] text-white"
+      style="background:#005B3A;">
+      ${isLast ? "Finish" : "Next Size"}
+    </button>
+  `;
+}
+
+function togglePack(n) {
+  const size = state.selectedSizes[state.currentSizeIdx];
+  const arr = state.packData[size];
+  const idx = arr.indexOf(n);
+  if (idx > -1) {
+    arr.splice(idx, 1);
+  } else {
+    arr.push(n);
+  }
+  arr.sort((a, b) => a - b);
+  renderPacks();
+}
+
+function goBackPacks() {
+  if (state.currentSizeIdx === 0) {
+    state.view = "sizes";
+    transitionTo(renderSizes);
+  } else {
+    state.currentSizeIdx -= 1;
+    transitionTo(renderPacks);
+  }
+}
+
+function goNextPacks() {
+  const isLast = state.currentSizeIdx === state.selectedSizes.length - 1;
+  if (isLast) {
+    finishProduct();
+  } else {
+    state.currentSizeIdx += 1;
+    transitionTo(renderPacks);
+  }
+}
+
+function finishProduct() {
+  const data = loadSavedData();
+  const packsOut = {};
+  state.selectedSizes.forEach(size => {
+    packsOut[size] = state.packData[size] || [];
+  });
+  data[state.currentProduct] = {
+    sizes: [...state.selectedSizes],
+    packs: packsOut
+  };
+  persistSavedData(data);
+
+  state.currentProduct = null;
+  state.selectedSizes = [];
+  state.packData = {};
+  state.currentSizeIdx = 0;
+  state.view = "home";
+  transitionTo(renderHome);
+}
+
+function cancelFlow() {
+  const hasProgress = state.selectedSizes.length > 0;
+  if (hasProgress && !confirm("Discard changes and return to Home?")) return;
+  state.currentProduct = null;
+  state.selectedSizes = [];
+  state.packData = {};
+  state.currentSizeIdx = 0;
+  state.view = "home";
+  transitionTo(renderHome);
+}
+
+/* ============================================================
+   VIEW 4: RESULTS DASHBOARD
+   ============================================================ */
+function goToResults() {
+  state.view = "results";
+  transitionTo(renderResults);
+}
+
+function renderResults() {
+  const wrapper = document.getElementById("view-wrapper");
+  const saved = loadSavedData();
+  const names = Object.keys(saved);
+
+  if (names.length === 0) {
+    wrapper.innerHTML = `
+      <div class="mb-4">
+        <h2 class="font-display font-bold text-lg text-slate-800">Results</h2>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 p-8 text-center">
+        <p class="text-3xl mb-2">📋</p>
+        <p class="text-slate-500 text-[13px]">No saved products yet.<br>Configure a product from Home to see it here.</p>
+      </div>
+    `;
+  } else {
+    const cards = names.map(name => {
+      const entry = saved[name];
+      const rows = entry.sizes.map(size => {
+        const packs = (entry.packs[size] || []).join(", ");
+        return `
+          <div class="flex items-start justify-between py-1.5 border-b border-slate-50 last:border-0">
+            <span class="text-[13px] font-semibold text-slate-700">${size} cm</span>
+            <span class="text-[13px] text-slate-500 text-right max-w-[65%]">${packs ? packs + " pcs" : "&mdash;"}</span>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="bg-white rounded-2xl border border-slate-100 p-4 mb-3 shadow-sm">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-lg bg-slate-50">
+              ${getIcon(name)}
+            </div>
+            <p class="font-semibold text-[13.5px] text-slate-800 flex-1 leading-snug">${escapeHtml(name)}</p>
+          </div>
+          <div class="mb-2">${rows}</div>
+          <button onclick="deleteProduct(${JSON.stringify(name).replace(/"/g, '&quot;')})"
+            class="w-full mt-1 py-2 rounded-lg text-[12px] font-semibold border-2"
+            style="border-color:#C1121F; color:#C1121F;">
+            Delete
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    wrapper.innerHTML = `
+      <div class="mb-4">
+        <h2 class="font-display font-bold text-lg text-slate-800">Results</h2>
+        <p class="text-[13px] text-slate-500">${names.length} product${names.length > 1 ? "s" : ""} configured.</p>
+      </div>
+      ${cards}
+      <div class="h-2"></div>
+    `;
+  }
+
+  document.getElementById("footer-content").innerHTML = `
+    <button onclick="backToHomeFromResults()"
+      class="flex-1 py-3.5 rounded-xl font-display font-semibold text-[14px] border-2 border-slate-200 text-slate-500">
+      Back
+    </button>
+    <button onclick="shareWhatsApp()"
+      class="flex-[1.4] py-3.5 rounded-xl font-display font-semibold text-[14px] text-white flex items-center justify-center gap-2"
+      style="background:#25D366;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 fill-white">
+        <path d="M17.6 6.32A7.85 7.85 0 0012.05 4a7.94 7.94 0 00-6.9 11.87L4 20l4.24-1.11a7.93 7.93 0 003.8.97h0a7.94 7.94 0 007.94-7.93 7.86 7.86 0 00-2.38-5.6zm-5.55 12.2h0a6.6 6.6 0 01-3.36-.92l-.24-.14-2.5.66.67-2.44-.16-.25a6.6 6.6 0 01 10.02-8.5 6.55 6.55 0 011.94 4.67 6.6 6.6 0 01-6.37 6.92zm3.6-4.93c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.44.1-.13.19-.5.64-.62.77-.11.13-.23.14-.42.05a5.4 5.4 0 01-1.6-.98 5.98 5.98 0 01-1.1-1.37c-.12-.2 0-.3.09-.4.09-.1.2-.24.3-.36.1-.12.13-.2.2-.34.06-.13.03-.25-.02-.35-.05-.1-.44-1.06-.6-1.45-.16-.38-.32-.33-.44-.33-.11 0-.24-.01-.37-.01-.13 0-.34.05-.52.24-.18.19-.68.67-.68 1.62 0 .96.7 1.89.8 2.02.1.13 1.37 2.1 3.33 2.94.47.2.83.32 1.11.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.33-.94.16-.46.16-.85.11-.94-.05-.09-.18-.14-.38-.24z"/>
+      </svg>
+      Share on WhatsApp
+    </button>
+  `;
+}
+
+function deleteProduct(name) {
+  if (!confirm(`Delete saved data for "${name}"?`)) return;
+  const data = loadSavedData();
+  delete data[name];
+  persistSavedData(data);
+  transitionTo(renderResults);
+}
+
+function backToHomeFromResults() {
+  state.view = "home";
+  transitionTo(renderHome);
+}
+
+function shareWhatsApp() {
+  const saved = loadSavedData();
+  const names = Object.keys(saved);
+  if (names.length === 0) {
+    alert("No data to share yet.");
+    return;
+  }
+
+  let text = "*Eman Bakery — Sizes & Pack Quantities*\n\n";
+  names.forEach(name => {
+    const entry = saved[name];
+    text += `*${name}*\n`;
+    entry.sizes.forEach(size => {
+      const packs = (entry.packs[size] || []).join(", ");
+      text += `- ${size}cm: ${packs || "no packs"} pcs\n`;
+    });
+    text += "\n";
+  });
+
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderHome();
+</script>
+
 </body>
 </html>
