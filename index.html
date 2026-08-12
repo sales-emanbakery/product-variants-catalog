@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eman Bakery - Product Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eman-green': '#0e673a',
+                        'eman-gold': '#d4af37',
+                        'eman-red': '#c62828',
+                        'eman-dark': '#111111'
+                    },
+                    boxShadow: {
+                        'top': '0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Fixed Layout Structure */
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent body scrolling */
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            padding-bottom: 20px; /* Extra padding for scrolling past last element */
+        }
+
+        /* Slide transition animations */
+        .slide-in-right {
+            animation: slideInRight 0.3s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .slide-out-left {
+            animation: slideOutLeft 0.3s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+
+        /* Number grid styling */
+        .num-btn {
+            transition: all 0.2s;
+            touch-action: manipulation; /* Improves touch response */
+        }
+        .num-btn.selected {
+            background-color: #0e673a;
+            color: white;
+            border-color: #0e673a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px -1px rgba(14, 103, 58, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div id="app-container">
+    <!-- Header: Fixed at the top -->
+    <header class="bg-black text-white p-4 shadow-md z-10 flex-shrink-0 flex items-center justify-center relative">
+        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 hidden" id="header-back-btn">
+             <button onclick="goBack()" class="text-eman-gold p-2">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                 </svg>
+             </button>
+        </div>
+        <img src="logo.jpg" alt="Eman Bakery" class="h-16 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/200x80/000000/d4af37?text=EMAN+BAKERY';">
+    </header>
+
+    <nav class="bg-white flex border-b border-gray-200 z-10 flex-shrink-0">
+        <button id="tab-form" onclick="switchTab('form')" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-eman-green text-eman-green transition-colors">
+            Capture Form
+        </button>
+        <button id="tab-results" onclick="switchTab('results')" class="flex-1 py-3 text-center text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
+            Results Dashboard
+        </button>
+    </nav>
+
+    <!-- Scrollable Content Area -->
+    <main id="scrollable-content" class="relative p-4">
+        
+        <!-- ==================== FORM VIEW ==================== -->
+        <div id="view-form" class="h-full w-full max-w-lg mx-auto relative">
+            
+            <!-- STEP 1: Select Product -->
+            <div id="step-1" class="absolute w-full h-full flex flex-col transition-transform duration-300">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+                    <h2 class="text-xl font-bold text-eman-green mb-4 flex items-center">
+                        <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">1</span>
+                        Select Product
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <label for="product-select" class="block text-sm font-medium text-gray-700 mb-2">Choose from list:</label>
+                        <div class="relative">
+                            <!-- Explicitly visible select dropdown -->
+                            <select id="product-select" class="block w-full pl-4 pr-10 py-4 text-base border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-eman-green focus:border-eman-green sm:text-sm rounded-lg appearance-none bg-white font-medium text-gray-800" style="display:block; opacity: 1; visibility: visible; min-height: 56px;">
+                                <option value="" disabled selected>-- Tap to select a product --</option>
+                                <!-- Options will be injected by JS -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <button onclick="nextStep(2)" id="btn-next-1" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
+                        Next Step
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-2" class="absolute w-full h-full flex flex-col translate-x-full hidden transition-transform duration-300">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+                    <h2 class="text-xl font-bold text-eman-green mb-1 flex items-center">
+                        <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">2</span>
+                        Available Sizes
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4" id="display-selected-product">Product Name</p>
+                    
+                    <p class="text-sm font-medium text-gray-700 mb-3">Select all that apply:</p>
+                    <div class="grid grid-cols-2 gap-3" id="size-options">
+                        <!-- Checkboxes injected by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <button onclick="nextStep(3)" id="btn-next-2" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 disabled:opacity-50 transition-colors" disabled>
+                        Next: Set Pack Quantities
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-3" class="absolute w-full h-full flex flex-col translate-x-full hidden transition-transform duration-300">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4 flex-1 overflow-y-auto no-scrollbar">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-xl font-bold text-eman-green flex items-center">
+                            <span class="bg-eman-gold text-white rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2">3</span>
+                            Pack Quantities
+                        </h2>
+                        <span id="current-size-badge" class="bg-gray-200 text-gray-800 text-xs font-bold px-3 py-1 rounded-full uppercase"></span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6" id="size-step-instruction">Select all package piece counts available for this size.</p>
+
+                    <div id="number-grid-container" class="mb-4">
+                        <!-- Grid injected by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4 pb-2 bg-gray-100 z-10">
+                    <button onclick="handleSizeNext()" id="btn-next-size" class="w-full bg-eman-green text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-800 transition-colors">
+                        Next Size
+                    </button>
+                    <button onclick="submitForm()" id="btn-submit" class="w-full bg-eman-red text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-red-800 transition-colors hidden mb-4">
+                        Finish & Save Record
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="view-results" class="hidden h-full w-full max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-eman-dark">Saved Records</h2>
+                    <span id="record-count" class="bg-eman-green text-white text-xs px-2 py-1 rounded-full">0</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Configuration</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody" class="bg-white divide-y divide-gray-200">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="empty-state" class="p-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p>No records saved yet.</p>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button onclick="shareToWhatsApp()" class="w-full flex items-center justify-center bg-[#25D366] text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-green-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 1.802 6.309L0 24l5.856-1.536A12 12 0 0 0 11.944 24a12 12 0 0 0 12-12 12 12 0 0 0-12-12zm.056 21.954a9.964 9.964 0 0 1-5.074-1.385l-.364-.216-3.768.99.998-3.674-.237-.377A9.97 9.97 0 0 1 2.046 12 9.954 9.954 0 0 1 12 2.046a10.046 10.046 0 0 1 10 10A10.046 10.046 0 0 1 12 21.954z"/>
+                        <path d="M16.51 14.156c-.237-.119-1.402-.693-1.62-.772-.218-.08-.377-.119-.536.119-.159.237-.614.772-.752.93s-.277.178-.515.06c-.237-.119-1.002-.37-1.906-1.176-.704-.627-1.179-1.402-1.317-1.64s-.015-.366.104-.485c.108-.108.237-.277.356-.415.119-.138.159-.237.237-.395.08-.158.04-.297-.02-.415-.06-.119-.536-1.293-.733-1.768-.194-.464-.391-.401-.536-.408-.138-.007-.297-.007-.455-.007a.87.87 0 0 0-.634.297c-.218.237-.832.812-.832 1.98s.852 2.298.971 2.456c.119.159 1.674 2.556 4.052 3.585.566.244 1.007.391 1.352.5.568.18 1.085.154 1.493.093.456-.067 1.402-.574 1.6-1.129.198-.556.198-1.031.138-1.129-.06-.099-.218-.158-.456-.277z"/>
+                    </svg>
+                    Send Report via WhatsApp
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer: Fixed at the bottom -->
+    <div id="sticky-controls" class="bg-white border-t border-gray-200 p-3 flex justify-between gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 pb-safe flex-shrink-0">
+        <button type="button" onclick="cancelProcess()" class="flex-1 py-3 px-2 bg-gray-200 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-300 transition-colors">
+            Cancel
+        </button>
+        <button type="button" onclick="saveDraft()" class="flex-1 py-3 px-2 bg-eman-gold text-white font-semibold rounded-lg text-sm hover:bg-yellow-600 transition-colors">
+            Save Draft
+        </button>
+        <button type="button" onclick="goBack()" class="flex-1 py-3 px-2 bg-gray-800 text-white font-semibold rounded-lg text-sm hover:bg-black transition-colors flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </button>
+    </div>
+</div>
+
+    <script>
+        // --- Data Definitions ---
+        const products = [
+            "SHAMI WHITE BREAD",
+            "SHAMI WHOLE WHEAT BREAD",
+            "LEBANESE WHITE BREAD",
+            "LEBANESE WHOLE WHEAT BREAD",
+            "TORTILLA WHITE",
+            "TORTILLA WHOLE WHEAT",
+            "SAMOULI WHITE",
+            "SAMOULI WHOLE WHEAT",
+            "BURGER BREAD",
+            "FALAFEL SANDWICH WHITE",
+            "FALAFEL SANDWICH WHOLE WHEAT"
+        ];
+
+        const sizes = [
+            { id: 'M', label: 'Medium' },
+            { id: 'L', label: 'Large' },
+            { id: 'XL', label: 'X-Large' },
+            { id: 'XXL', label: 'XX-Large' },
+            { id: 'XXXL', label: 'XXX-Large' }
+        ];
+
+        // --- State Management ---
+        let currentStep = 1;
+        let formData = {
+            product: '',
+            selectedSizes: [], // e.g. ['M', 'L']
+            packQuantities: {} // e.g. { 'M': [2, 4], 'L': [5] }
+        };
+        let currentSizeProcessingIndex = 0;
+        let savedRecords = [];
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM loaded, initializing...");
+            initProductSelect();
+            initSizeCheckboxes();
+            
+            // Load Draft if exists
+            const draft = localStorage.getItem('eman_form_draft');
+            if(draft) {
+                if(confirm("You have a saved draft. Would you like to resume?")) {
+                    formData = JSON.parse(draft);
+                    resumeDraft();
+                } else {
+                    localStorage.removeItem('eman_form_draft');
+                }
+            }
+
+            // Load saved records
+            const records = localStorage.getItem('eman_records');
+            if(records) {
+                savedRecords = JSON.parse(records);
+                updateResultsTable();
+            }
+        });
+
+        function initProductSelect() {
+            const selectEl = document.getElementById('product-select');
+            
+            // Clear existing options except placeholder
+            selectEl.innerHTML = '<option value="" disabled selected>-- Tap to select a product --</option>';
+            
+            // Append products
+            products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                selectEl.appendChild(opt);
+            });
+
+            // Add change listener to enable Next button
+            selectEl.addEventListener('change', (e) => {
+                formData.product = e.target.value;
+                document.getElementById('btn-next-1').disabled = false;
+                document.getElementById('display-selected-product').textContent = formData.product;
+            });
+            
+            console.log("Dropdown initialized with " + products.length + " products.");
+        }
+
+        function initSizeCheckboxes() {
+            const container = document.getElementById('size-options');
+            container.innerHTML = '';
+            
+            sizes.forEach(size => {
+                const label = document.createElement('label');
+                label.className = "flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors";
+                label.innerHTML = `
+                    <input type="checkbox" value="${size.id}" class="w-5 h-5 text-eman-green border-gray-300 rounded focus:ring-eman-green size-checkbox">
+                    <span class="ml-3 font-medium text-gray-700">${size.label} (${size.id})</span>
+                `;
+                container.appendChild(label);
+            });
+
+            // Listen for changes to enable Next button
+            const checkboxes = document.querySelectorAll('.size-checkbox');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checked = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+                    formData.selectedSizes = checked;
+                    document.getElementById('btn-next-2').disabled = checked.length === 0;
+                });
+            });
+        }
+
+        function generateNumberGrid() {
+            const container = document.getElementById('number-grid-container');
+            container.innerHTML = '';
+            
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-5 gap-2 sm:gap-3";
+            
+            const currentSize = formData.selectedSizes[currentSizeProcessingIndex];
+            const selectedNumsForThisSize = formData.packQuantities[currentSize] || [];
+
+            for (let i = 1; i <= 30; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                const isSelected = selectedNumsForThisSize.includes(i);
+                
+                btn.className = `num-btn w-full aspect-square rounded-lg flex items-center justify-center text-lg font-bold border-2 ${isSelected ? 'selected' : 'border-gray-200 bg-white text-gray-700 hover:border-eman-green'}`;
+                btn.textContent = i;
+                
+                btn.onclick = () => toggleNumber(i, currentSize, btn);
+                grid.appendChild(btn);
+            }
+            container.appendChild(grid);
+        }
+
+        function toggleNumber(num, size, btnEl) {
+            if (!formData.packQuantities[size]) {
+                formData.packQuantities[size] = [];
+            }
+            
+            const index = formData.packQuantities[size].indexOf(num);
+            if (index > -1) {
+                // Remove
+                formData.packQuantities[size].splice(index, 1);
+                btnEl.classList.remove('selected');
+                btnEl.classList.add('border-gray-200', 'bg-white', 'text-gray-700');
+            } else {
+                // Add
+                formData.packQuantities[size].push(num);
+                formData.packQuantities[size].sort((a,b) => a-b);
+                btnEl.classList.add('selected');
+                btnEl.classList.remove('border-gray-200', 'bg-white', 'text-gray-700');
+            }
+        }
+
+        function nextStep(step) {
+            // Hide current
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            
+            currentStep = step;
+            
+            const nextEl = document.getElementById(`step-${currentStep}`);
+            nextEl.classList.remove('hidden');
+            
+            // Setup specific steps
+            if (step === 3) {
+                currentSizeProcessingIndex = 0;
+                setupSizeProcessingView();
+            }
+        }
+
+        function setupSizeProcessingView() {
+            const currentSizeId = formData.selectedSizes[currentSizeProcessingIndex];
+            const sizeObj = sizes.find(s => s.id === currentSizeId);
+            
+            document.getElementById('current-size-badge').textContent = `${sizeObj.label} (${currentSizeId})`;
+            
+            // Determine button state
+            const btnNextSize = document.getElementById('btn-next-size');
+            const btnSubmit = document.getElementById('btn-submit');
+            
+            if (currentSizeProcessingIndex < formData.selectedSizes.length - 1) {
+                // More sizes to process
+                btnNextSize.classList.remove('hidden');
+                btnSubmit.classList.add('hidden');
+            } else {
+                // Last size
+                btnNextSize.classList.add('hidden');
+                btnSubmit.classList.remove('hidden');
+            }
+            
+            generateNumberGrid();
+        }
+
+        function handleSizeNext() {
+            currentSizeProcessingIndex++;
+            setupSizeProcessingView();
+        }
+
+        function goBack() {
+            if (currentStep === 1) return; // Cannot go back from 1
+            
+            if (currentStep === 3 && currentSizeProcessingIndex > 0) {
+                // Go back a size within step 3
+                currentSizeProcessingIndex--;
+                setupSizeProcessingView();
+                return;
+            }
+
+            // Normal step back
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            currentStep--;
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+        }
+
+        function cancelProcess() {
+            if(confirm("Are you sure you want to cancel and start over?")) {
+                localStorage.removeItem('eman_form_draft');
+                resetForm();
+            }
+        }
+
+        function resetForm() {
+            formData = { product: '', selectedSizes: [], packQuantities: {} };
+            currentStep = 1;
+            currentSizeProcessingIndex = 0;
+            
+            // Reset UI
+            const selectEl = document.getElementById('product-select');
+            selectEl.value = '';
+            document.getElementById('btn-next-1').disabled = true;
+            document.getElementById('display-selected-product').textContent = 'Product Name';
+            
+            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('btn-next-2').disabled = true;
+            
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            
+            switchTab('form');
+        }
+
+        function saveDraft() {
+            localStorage.setItem('eman_form_draft', JSON.stringify(formData));
+            alert("Draft saved successfully. You can resume later.");
+        }
+
+        function resumeDraft() {
+            // Restore Product
+            if(formData.product) {
+                document.getElementById('product-select').value = formData.product;
+                document.getElementById('btn-next-1').disabled = false;
+                document.getElementById('display-selected-product').textContent = formData.product;
+            }
+            
+            // Restore Sizes
+            if(formData.selectedSizes && formData.selectedSizes.length > 0) {
+                const checkboxes = document.querySelectorAll('.size-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.checked = formData.selectedSizes.includes(cb.value);
+                });
+                document.getElementById('btn-next-2').disabled = false;
+            }
+        }
+
+        function submitForm() {
+            // Validation: Ensure current size has at least one quantity if possible, 
+            // though not strictly required, good UX to warn.
+            
+            const record = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+                ...formData
+            };
+            
+            savedRecords.push(record);
+            localStorage.setItem('eman_records', JSON.stringify(savedRecords));
+            localStorage.removeItem('eman_form_draft'); // Clear draft on submit
+            
+            updateResultsTable();
+            resetForm();
+            switchTab('results');
+        }
+
+        function updateResultsTable() {
+            const tbody = document.getElementById('results-tbody');
+            const emptyState = document.getElementById('empty-state');
+            document.getElementById('record-count').textContent = savedRecords.length;
+            
+            tbody.innerHTML = '';
+            
+            if (savedRecords.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            savedRecords.slice().reverse().forEach(record => {
+                const tr = document.createElement('tr');
+                
+                // Format configuration string
+                let configHtml = '';
+                for (const [size, quantities] of Object.entries(record.packQuantities)) {
+                    if (quantities && quantities.length > 0) {
+                        configHtml += `<div class="mb-1"><span class="font-bold text-gray-700">${size}:</span> [${quantities.join(', ')}]</div>`;
+                    }
+                }
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-normal text-sm font-medium text-gray-900">${record.product}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${configHtml || 'No packs set'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.date.split(' ')[0]}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchTab(tab) {
+            const viewForm = document.getElementById('view-form');
+            const viewResults = document.getElementById('view-results');
+            const tabForm = document.getElementById('tab-form');
+            const tabResults = document.getElementById('tab-results');
+            const stickyControls = document.getElementById('sticky-controls');
+            
+            if (tab === 'form') {
+                viewForm.classList.remove('hidden');
+                viewResults.classList.add('hidden');
+                tabForm.classList.add('border-eman-green', 'text-eman-green');
+                tabForm.classList.remove('border-transparent', 'text-gray-500');
+                tabResults.classList.remove('border-eman-green', 'text-eman-green');
+                tabResults.classList.add('border-transparent', 'text-gray-500');
+                stickyControls.classList.remove('hidden');
+            } else {
+                viewForm.classList.add('hidden');
+                viewResults.classList.remove('hidden');
+                tabResults.classList.add('border-eman-green', 'text-eman-green');
+                tabResults.classList.remove('border-transparent', 'text-gray-500');
+                tabForm.classList.remove('border-eman-green', 'text-eman-green');
+                tabForm.classList.add('border-transparent', 'text-gray-500');
+                stickyControls.classList.add('hidden');
+            }
+        }
+
+        function shareToWhatsApp() {
+            if (savedRecords.length === 0) {
+                alert("No records to share yet.");
+                return;
+            }
+            
+            let message = "*Eman Bakery - Packaging Setup Report*\n\n";
+            
+            savedRecords.forEach((record, index) => {
+                message += `*${index + 1}. ${record.product}*\n`;
+                for (const [size, quantities] of Object.entries(record.packQuantities)) {
+                    if (quantities && quantities.length > 0) {
+                        message += `- Size ${size}: ${quantities.join(', ')} pcs/pack\n`;
+                    }
+                }
+                message += "\n";
+            });
+            
+            const phone = "966541885869";
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+    
+    <style>
+        /* CSS for safe areas on mobile devices (e.g. iPhone notch) */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+</body>
+</html>
